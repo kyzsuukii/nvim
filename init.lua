@@ -62,6 +62,7 @@ local core_packages = {
 	{ source = "lewis6991/hover.nvim" },
 	{ source = "mrjones2014/legendary.nvim" },
 	{ source = "stevearc/dressing.nvim" },
+	{ source = "j-hui/fidget.nvim" },
 	{
 		source = "adalessa/laravel.nvim",
 		depends = {
@@ -151,6 +152,7 @@ now(function()
 		"legendary",
 		"undotree",
 		"laravel",
+		"fidget",
 	}
 
 	for _, pkg in ipairs(single_setup) do
