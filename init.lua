@@ -62,6 +62,15 @@ local core_packages = {
 	{ source = "lewis6991/hover.nvim" },
 	{ source = "mrjones2014/legendary.nvim" },
 	{ source = "stevearc/dressing.nvim" },
+	{
+		source = "adalessa/laravel.nvim",
+		depends = {
+			"tpope/vim-dotenv",
+			"nvim-telescope/telescope.nvim",
+			"MunifTanjim/nui.nvim",
+			"kevinhwang91/promise-async",
+		},
+	},
 	{ source = "nvim-telescope/telescope.nvim", depends = { "nvim-lua/plenary.nvim" } },
 	{ source = "jiaoshijie/undotree", depends = { "nvim-lua/plenary.nvim" } },
 	{
@@ -141,6 +150,7 @@ now(function()
 		"multiple-cursors",
 		"legendary",
 		"undotree",
+		"laravel",
 	}
 
 	for _, pkg in ipairs(single_setup) do
