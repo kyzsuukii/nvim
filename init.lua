@@ -63,6 +63,7 @@ local core_packages = {
 	{ source = "mrjones2014/legendary.nvim" },
 	{ source = "stevearc/dressing.nvim" },
 	{ source = "j-hui/fidget.nvim" },
+	{ source = "nvim-treesitter/nvim-treesitter-context" },
 	{
 		source = "adalessa/laravel.nvim",
 		depends = {
@@ -153,6 +154,7 @@ now(function()
 		"undotree",
 		"laravel",
 		"fidget",
+		"treesitter-context",
 	}
 
 	for _, pkg in ipairs(single_setup) do
