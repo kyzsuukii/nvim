@@ -51,6 +51,7 @@ local mini_packages = {
 
 local core_packages = {
 	{ source = "neovim/nvim-lspconfig", depends = { "williamboman/mason.nvim" } },
+	{ source = "williamboman/mason-lspconfig.nvim" },
 	{ source = "stevearc/conform.nvim" },
 	{ source = "Mofiqul/vscode.nvim" },
 	{ source = "EdenEast/nightfox.nvim" },
@@ -100,7 +101,7 @@ end
 
 now(function()
 	require("nvim-treesitter.configs").setup({
-		ensure_installed = { "lua", "vimdoc", "html", "tsx", "css" },
+		ensure_installed = { "lua", "vimdoc", "html", "tsx", "css", "query", "php", "php_only" },
 		highlight = {
 			enable = true,
 		},
@@ -118,6 +119,10 @@ now(function()
 			typescriptreact = { "prettierd" },
 			css = { "prettierd" },
 			html = { "prettierd" },
+			markdown = { "prettierd" },
+			json = { "prettierd" },
+			php = { "pretty-php" },
+			blade = { "blade-formatter" },
 		},
 		format_on_save = {
 			timeout_ms = 500,
@@ -130,6 +135,15 @@ now(function()
 	end
 
 	require("mason").setup()
+	require("mason-lspconfig").setup({
+		ensure_installed = {
+			"lua_ls",
+			"ts_ls",
+			"cssls",
+			"phpactor",
+		},
+		automatic_installation = true,
+	})
 
 	local miniclue = require("mini.clue")
 	miniclue.setup({
@@ -163,7 +177,11 @@ now(function()
 
 	local lspconfig = require("lspconfig")
 
+	local capabilities = vim.lsp.protocol.make_client_capabilities()
+	capabilities.textDocument.completion.completionItem.snippetSupport = true
+
 	lspconfig.lua_ls.setup({
+		capabilities = capabilities,
 		settings = {
 			Lua = {
 				diagnostics = { globals = { "vim" } },
@@ -182,14 +200,24 @@ now(function()
 	})
 
 	lspconfig.ts_ls.setup({
+		capabilities = capabilities,
 		init_options = {
-			plugins = {
-				{
-					name = "@vue/typescript-plugin",
-					location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
-					languages = { "javascript", "typescript", "vue" },
-				},
+			preferences = {
+				importModuleSpecifierPreference = "relative",
+				includeInlayParameterNameHints = "all",
+				includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+				includeInlayFunctionParameterTypeHints = true,
+				includeInlayVariableTypeHints = true,
+				includeInlayPropertyDeclarationTypeHints = true,
+				includeInlayFunctionLikeReturnTypeHints = true,
+				includeInlayEnumMemberValueHints = true,
 			},
+		},
+		filetypes = {
+			"javascript",
+			"typescript",
+			"javascriptreact",
+			"typescriptreact",
 		},
 		settings = {
 			typescript = {
@@ -215,17 +243,89 @@ now(function()
 				},
 			},
 		},
-		filetypes = { "javascript", "typescript", "vue", "javascriptreact", "typescriptreact" },
 	})
 
-	local capabilities = vim.lsp.protocol.make_client_capabilities()
-	capabilities.textDocument.completion.completionItem.snippetSupport = true
-
-	require("lspconfig").cssls.setup({
+	lspconfig.cssls.setup({
 		capabilities = capabilities,
+		settings = {
+			css = {
+				validate = true,
+				lint = {
+					unknownAtRules = "ignore",
+				},
+			},
+			scss = {
+				validate = true,
+				lint = {
+					unknownAtRules = "ignore",
+				},
+			},
+			less = {
+				validate = true,
+				lint = {
+					unknownAtRules = "ignore",
+				},
+			},
+		},
 	})
 
+	lspconfig.phpactor.setup({
+		capabilities = capabilities,
+		filetypes = { "php", "blade" },
+		init_options = {
+			["indexer.exclude_patterns"] = {
+				"/vendor/**/Tests/**/*",
+				"/vendor/**/tests/**/*",
+				"/vendor/composer/**/*",
+				"/vendor/autoload.php",
+			},
+			["indexer.project_root"] = vim.fn.getcwd(),
+
+			["composer.enable"] = true,
+			["composer.autoloader_path"] = "./vendor/autoload.php",
+
+			["completion.dedupe"] = true,
+			["completion.limit"] = 50,
+
+			["completion_worse.completor.doctrine_annotation.enabled"] = true,
+			["completion_worse.completor.imported_names.enabled"] = true,
+			["completion_worse.completor.constructor.enabled"] = true,
+			["completion_worse.completor.class_member.enabled"] = true,
+			["completion_worse.completor.local_variable.enabled"] = true,
+			["completion_worse.completor.declared_function.enabled"] = true,
+			["completion_worse.completor.declared_constant.enabled"] = true,
+			["completion_worse.completor.declared_class.enabled"] = true,
+
+			["symfony.enabled"] = false,
+			["phpunit.enabled"] = false,
+
+			["language_server_worse_reflection.inlay_hints.enable"] = true,
+			["language_server_worse_reflection.inlay_hints.types"] = true,
+			["language_server_worse_reflection.inlay_hints.params"] = true,
+		},
+		on_attach = function(_, bufnr)
+			local opts = { noremap = true, silent = true, buffer = bufnr }
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+			vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+			vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+
+			vim.keymap.set("n", "<Leader>ii", function()
+				vim.lsp.buf.execute_command({
+					command = "phpactor.import_missing_classes",
+					arguments = { vim.uri_from_bufnr(0) },
+				})
+			end, opts)
+
+			vim.keymap.set("n", "<Leader>ic", function()
+				vim.lsp.buf.execute_command({
+					command = "phpactor.import_class",
+					arguments = { vim.uri_from_bufnr(0) },
+				})
+			end, opts)
+		end,
+	})
 	local c = require("vscode.colors").get_colors()
+
 	require("vscode").setup({
 		italic_comments = true,
 		underline_links = true,
@@ -239,6 +339,16 @@ now(function()
 	require("dropbar").setup()
 
 	require("gitsigns").setup()
+
+	local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+	parser_config.blade = {
+		install_info = {
+			url = "https://github.com/EmranMR/tree-sitter-blade",
+			files = { "src/parser.c" },
+			branch = "main",
+		},
+		filetype = "blade",
+	}
 
 	require("nvim-ts-autotag").setup({
 		opts = {
@@ -294,10 +404,13 @@ now(function()
 			},
 		},
 		suggestion = {
-			enable = true,
+			enabled = true,
 			auto_trigger = true,
 			keymap = {
 				accept = "<C-l>",
+				next = "<C-]>",
+				prev = "<C-[>",
+				dismiss = "<C-x>",
 			},
 		},
 	})
@@ -343,6 +456,12 @@ now(function()
 	mini_icons.setup()
 	mini_icons.tweak_lsp_kind()
 end)
+
+vim.filetype.add({
+	pattern = {
+		[".*%.blade%.php"] = "blade",
+	},
+})
 
 _G.cr_action = function()
 	if vim.fn.pumvisible() ~= 0 then
