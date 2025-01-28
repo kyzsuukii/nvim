@@ -411,8 +411,8 @@ now(function()
 			auto_trigger = true,
 			keymap = {
 				accept = "<C-l>",
-				next = "<C-]>",
-				prev = "<C-[>",
+				next = "<C-n>",
+				prev = "<C-p>",
 				dismiss = "<C-x>",
 			},
 		},
