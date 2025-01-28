@@ -134,7 +134,19 @@ now(function()
 		require("mini." .. pkg).setup()
 	end
 
-	require("mason").setup()
+	local single_setup = {
+		"mason",
+		"dropbar",
+		"gitsigns",
+		"multiple-cursors",
+		"legendary",
+		"undotree",
+	}
+
+	for _, pkg in ipairs(single_setup) do
+		require(pkg).setup()
+	end
+
 	require("mason-lspconfig").setup({
 		ensure_installed = {
 			"lua_ls",
@@ -324,6 +336,7 @@ now(function()
 			end, opts)
 		end,
 	})
+
 	local c = require("vscode.colors").get_colors()
 
 	require("vscode").setup({
@@ -335,10 +348,6 @@ now(function()
 			Cursor = { fg = c.vscDarkBlue, bg = c.vscLightGreen, bold = true },
 		},
 	})
-
-	require("dropbar").setup()
-
-	require("gitsigns").setup()
 
 	local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 	parser_config.blade = {
@@ -373,12 +382,6 @@ now(function()
 			enable_close_on_slash = false,
 		},
 	})
-
-	require("multiple-cursors").setup()
-
-	require("legendary").setup()
-
-	require("undotree").setup()
 
 	require("hover").setup({
 		init = function()
