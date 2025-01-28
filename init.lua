@@ -64,6 +64,7 @@ local core_packages = {
 	{ source = "stevearc/dressing.nvim" },
 	{ source = "j-hui/fidget.nvim" },
 	{ source = "nvim-treesitter/nvim-treesitter-context" },
+	{ source = "mfussenegger/nvim-lint" },
 	{
 		source = "adalessa/laravel.nvim",
 		depends = {
@@ -140,6 +141,14 @@ now(function()
 			lsp_format = "fallback",
 		},
 	})
+
+	require("lint").linters_by_ft = {
+		javascript = { "eslint_d" },
+		typescript = { "eslint_d" },
+		javascriptreact = { "eslint_d" },
+		typescriptreact = { "eslint_d" },
+		php = { "phpstan" },
+	}
 
 	for _, pkg in ipairs(mini_packages) do
 		require("mini." .. pkg).setup()
@@ -478,6 +487,12 @@ vim.filetype.add({
 	pattern = {
 		[".*%.blade%.php"] = "blade",
 	},
+})
+
+vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+	callback = function()
+		require("lint").try_lint()
+	end,
 })
 
 _G.cr_action = function()
