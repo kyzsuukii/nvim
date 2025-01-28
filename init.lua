@@ -2,6 +2,7 @@ local opt = vim.opt
 
 -- opt.number = true
 opt.showcmd = true
+
 opt.tabstop = 2
 opt.shiftwidth = 2
 opt.smartindent = true
@@ -113,7 +114,7 @@ end
 
 now(function()
 	require("nvim-treesitter.configs").setup({
-		ensure_installed = { "lua", "vimdoc", "html", "tsx", "css", "query", "php", "php_only" },
+		ensure_installed = { "lua", "vimdoc", "html", "tsx", "css", "query", "php", "php_only", "json" },
 		highlight = {
 			enable = true,
 		},
@@ -175,7 +176,8 @@ now(function()
 			"lua_ls",
 			"ts_ls",
 			"cssls",
-			"phpactor",
+			-- "phpactor",
+			"intelephense",
 		},
 		automatic_installation = true,
 	})
