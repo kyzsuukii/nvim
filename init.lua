@@ -495,28 +495,11 @@ vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 	end,
 })
 
-_G.cr_action = function()
-	if vim.fn.pumvisible() ~= 0 then
-		local selected = vim.fn.complete_info().selected
-		if selected ~= -1 then
-			return vim.api.nvim_replace_termcodes("<C-y>", true, true, true)
-		else
-			return vim.api.nvim_replace_termcodes("<C-n><C-y>", true, true, true)
-		end
-	else
-		return vim.api.nvim_replace_termcodes("<CR>", true, true, true)
-	end
-end
-
-local imap_expr = function(lhs, rhs)
-	vim.keymap.set("i", lhs, rhs, { expr = true })
-end
-imap_expr("<Tab>", [[pumvisible() ? "\<C-n>" : "\<Tab>"]])
-imap_expr("<S-Tab>", [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]])
-
 local map = vim.keymap.set
 
-map("i", "<CR>", "v:lua._G.cr_action()", { expr = true, noremap = true })
+map("i", "<Tab>", [[pumvisible() ? "\<C-n>" : "\<Tab>"]], { expr = true })
+map("i", "<S-Tab>", [[pumvisible() ? "\<C-p>" : "\<S-Tab>"]], { expr = true })
+
 map("n", "dd", '"_dd', { noremap = true, silent = true })
 
 map({ "n", "x" }, "<C-j>", "<Cmd>MultipleCursorsAddDown<CR>", { desc = "Add cursor and move down" })
