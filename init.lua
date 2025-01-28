@@ -176,8 +176,7 @@ now(function()
 			"lua_ls",
 			"ts_ls",
 			"cssls",
-			-- "phpactor",
-			"intelephense",
+			"phpactor",
 		},
 		automatic_installation = true,
 	})
@@ -282,10 +281,6 @@ now(function()
 		},
 	})
 
-	lspconfig.intelephense.setup({
-		capabilities = capabilities,
-	})
-
 	lspconfig.cssls.setup({
 		capabilities = capabilities,
 		settings = {
@@ -310,61 +305,60 @@ now(function()
 		},
 	})
 
-	-- lspconfig.phpactor.setup({
-	-- 	capabilities = capabilities,
-	-- 	filetypes = { "php", "blade" },
-	-- 	init_options = {
-	-- 		["indexer.exclude_patterns"] = {
-	-- 			"/vendor/**/Tests/**/*",
-	-- 			"/vendor/**/tests/**/*",
-	-- 			"/vendor/composer/**/*",
-	-- 			"/vendor/autoload.php",
-	-- 		},
-	-- 		["indexer.project_root"] = vim.fn.getcwd(),
-	--
-	-- 		["composer.enable"] = true,
-	-- 		["composer.autoloader_path"] = "./vendor/autoload.php",
-	--
-	-- 		["completion.dedupe"] = true,
-	-- 		["completion.limit"] = 50,
-	--
-	-- 		["completion_worse.completor.doctrine_annotation.enabled"] = true,
-	-- 		["completion_worse.completor.imported_names.enabled"] = true,
-	-- 		["completion_worse.completor.constructor.enabled"] = true,
-	-- 		["completion_worse.completor.class_member.enabled"] = true,
-	-- 		["completion_worse.completor.local_variable.enabled"] = true,
-	-- 		["completion_worse.completor.declared_function.enabled"] = true,
-	-- 		["completion_worse.completor.declared_constant.enabled"] = true,
-	-- 		["completion_worse.completor.declared_class.enabled"] = true,
-	--
-	-- 		["symfony.enabled"] = false,
-	-- 		["phpunit.enabled"] = false,
-	--
-	-- 		["language_server_worse_reflection.inlay_hints.enable"] = true,
-	-- 		["language_server_worse_reflection.inlay_hints.types"] = true,
-	-- 		["language_server_worse_reflection.inlay_hints.params"] = true,
-	-- 	},
-	-- 	on_attach = function(_, bufnr)
-	-- 		local opts = { noremap = true, silent = true, buffer = bufnr }
-	-- 		vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-	-- 		vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-	-- 		vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
-	--
-	-- 		vim.keymap.set("n", "<Leader>ii", function()
-	-- 			vim.lsp.buf.execute_command({
-	-- 				command = "phpactor.import_missing_classes",
-	-- 				arguments = { vim.uri_from_bufnr(0) },
-	-- 			})
-	-- 		end, opts)
-	--
-	-- 		vim.keymap.set("n", "<Leader>ic", function()
-	-- 			vim.lsp.buf.execute_command({
-	-- 				command = "phpactor.import_class",
-	-- 				arguments = { vim.uri_from_bufnr(0) },
-	-- 			})
-	-- 		end, opts)
-	-- 	end,
-	-- })
+	lspconfig.phpactor.setup({
+		filetypes = { "php", "blade" },
+		init_options = {
+			["indexer.exclude_patterns"] = {
+				"/vendor/**/Tests/**/*",
+				"/vendor/**/tests/**/*",
+				"/vendor/composer/**/*",
+				"/vendor/autoload.php",
+			},
+			["indexer.project_root"] = vim.fn.getcwd(),
+
+			["composer.enable"] = true,
+			["composer.autoloader_path"] = "./vendor/autoload.php",
+
+			["completion.dedupe"] = true,
+			["completion.limit"] = 50,
+
+			["completion_worse.completor.doctrine_annotation.enabled"] = true,
+			["completion_worse.completor.imported_names.enabled"] = true,
+			["completion_worse.completor.constructor.enabled"] = true,
+			["completion_worse.completor.class_member.enabled"] = true,
+			["completion_worse.completor.local_variable.enabled"] = true,
+			["completion_worse.completor.declared_function.enabled"] = true,
+			["completion_worse.completor.declared_constant.enabled"] = true,
+			["completion_worse.completor.declared_class.enabled"] = true,
+
+			["symfony.enabled"] = false,
+			["phpunit.enabled"] = false,
+
+			["language_server_worse_reflection.inlay_hints.enable"] = true,
+			["language_server_worse_reflection.inlay_hints.types"] = true,
+			["language_server_worse_reflection.inlay_hints.params"] = true,
+		},
+		on_attach = function(_, bufnr)
+			local opts = { noremap = true, silent = true, buffer = bufnr }
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+			vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+			vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+
+			vim.keymap.set("n", "<Leader>ii", function()
+				vim.lsp.buf.execute_command({
+					command = "phpactor.import_missing_classes",
+					arguments = { vim.uri_from_bufnr(0) },
+				})
+			end, opts)
+
+			vim.keymap.set("n", "<Leader>ic", function()
+				vim.lsp.buf.execute_command({
+					command = "phpactor.import_class",
+					arguments = { vim.uri_from_bufnr(0) },
+				})
+			end, opts)
+		end,
+	})
 
 	local c = require("vscode.colors").get_colors()
 
