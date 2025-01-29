@@ -15,6 +15,9 @@ opt.showmode = true
 opt.pumheight = 20
 -- vim.o.mousemoveevent = true
 
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 local path_package = vim.fn.stdpath("data") .. "/site"
 local mini_path = path_package .. "/pack/deps/start/mini.nvim"
 
@@ -46,7 +49,7 @@ local mini_packages = {
 	"statusline",
 	"tabline",
 	"clue",
-	"files",
+	-- "files",
 	"ai",
 }
 
@@ -64,6 +67,7 @@ local core_packages = {
 	{ source = "mrjones2014/legendary.nvim" },
 	{ source = "stevearc/dressing.nvim" },
 	{ source = "j-hui/fidget.nvim" },
+	{ source = "nvim-tree/nvim-tree.lua" },
 	{ source = "nvim-treesitter/nvim-treesitter-context" },
 	{ source = "mfussenegger/nvim-lint" },
 	{
@@ -216,6 +220,14 @@ now(function()
 	local capabilities = vim.lsp.protocol.make_client_capabilities()
 	capabilities.textDocument.completion.completionItem.snippetSupport = true
 
+	lspconfig.rubocop.setup({
+		capabilities = capabilities,
+	})
+
+	lspconfig.ruby_lsp.setup({
+		capabilities = capabilities,
+	})
+
 	lspconfig.lua_ls.setup({
 		capabilities = capabilities,
 		settings = {
@@ -338,21 +350,21 @@ now(function()
 			["language_server_worse_reflection.inlay_hints.types"] = true,
 			["language_server_worse_reflection.inlay_hints.params"] = true,
 		},
-		on_attach = function(_, bufnr)
+		on_attach = function(client, bufnr)
 			local opts = { noremap = true, silent = true, buffer = bufnr }
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
 			vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
 			vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
 
 			vim.keymap.set("n", "<Leader>ii", function()
-				vim.lsp.buf.execute_command({
+				client:exec({
 					command = "phpactor.import_missing_classes",
 					arguments = { vim.uri_from_bufnr(0) },
 				})
 			end, opts)
 
 			vim.keymap.set("n", "<Leader>ic", function()
-				vim.lsp.buf.execute_command({
+				client:exec({
 					command = "phpactor.import_class",
 					arguments = { vim.uri_from_bufnr(0) },
 				})
@@ -381,6 +393,12 @@ now(function()
 		},
 		filetype = "blade",
 	}
+
+	require("nvim-tree").setup({
+		view = {
+			width = 25,
+		},
+	})
 
 	require("nvim-ts-autotag").setup({
 		opts = {
@@ -468,15 +486,15 @@ now(function()
 		},
 	})
 
-	local mini_files = require("mini.files")
-	vim.keymap.set("n", "<C-l>", function()
-		local minifiles_toggle = function(...)
-			if not mini_files.close() then
-				mini_files.open(...)
-			end
-		end
-		minifiles_toggle()
-	end, { noremap = true, silent = true })
+	-- local mini_files = require("mini.files")
+	-- vim.keymap.set("n", "<C-l>", function()
+	-- 	local minifiles_toggle = function(...)
+	-- 		if not mini_files.close() then
+	-- 			mini_files.open(...)
+	-- 		end
+	-- 	end
+	-- 	minifiles_toggle()
+	-- end, { noremap = true, silent = true })
 
 	local mini_icons = require("mini.icons")
 	mini_icons.setup()
@@ -542,5 +560,7 @@ map("n", "<C-n>", function()
 end, { desc = "hover.nvim (next source)" })
 
 -- map("n", "<MouseMove>", require("hover").hover_mouse, { desc = "hover.nvim (mouse)" })
+
+map({ "n", "i" }, "<C-n>", "<cmd>NvimTreeToggle<cr>", { desc = "NvimTree Toogle" })
 
 vim.cmd.colorscheme("vscode")
